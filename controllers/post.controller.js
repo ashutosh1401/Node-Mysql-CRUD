@@ -3,6 +3,7 @@ const pool = require('../database')
 exports.createPost = async (req, res) => {
     try {
         const { postname, description } = req.body;
+        console.log(req.user)
         const newPost = {
             postname,
             description,
@@ -11,7 +12,7 @@ exports.createPost = async (req, res) => {
         const post = await pool.query("INSERT INTO POSTS SET ?", [newPost])
 
         if (post) {
-            res.status(201).send("Post created sucessfully");
+            res.status(201).send({ message: "Post created sucessfully", post });
         }
     } catch (e) {
         res.status(500).send(e)
@@ -21,7 +22,7 @@ exports.createPost = async (req, res) => {
 
 exports.getPostById = async (req, res) => {
     try {
-        const { postId } = req.params.id
+        const postId = req.params.id
         const post = await pool.query("SELECT * FROM POSTS WHERE postId=?", [postId])
         if (post) {
             res.status(200).send({
@@ -42,7 +43,22 @@ exports.getPosts = async (req, res) => {
                 posts
             })
         }
-    } catch (error) {
+    } catch (e) {
+        res.status(500).send(e)
+        console.log(e)
+    }
+}
+
+exports.deletePost = async (req, res) => {
+    try {
+        const postId = req.params.id
+        const createdBy = req.user.UserId
+        const delpost = await pool.query("DELETE FROM POSTS WHERE postId=? AND createdBy=?", [postId, createdBy])
+        console.log(delpost)
+        if (delpost) {
+            res.status(200).send({ message: "Post deleted" });
+        }
+    } catch (e) {
         res.status(500).send(e)
         console.log(e)
     }
