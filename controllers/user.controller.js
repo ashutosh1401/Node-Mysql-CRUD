@@ -51,7 +51,7 @@ const login = async (req, res) => {
         console.log(fuser);
 
         //.status(201).send(fuser)
-
+        //console.log(fuser[0].userId)
         if (fuser) {
             const isMatch = await bcrypt.compare(password, fuser[0].password)
             if (isMatch) {
@@ -68,7 +68,7 @@ const login = async (req, res) => {
     }
 }
 
-exports.getUserdetails = async (req, res) => {
+const getUserdetails = async (req, res) => {
     try {
         const { email } = req.user
         const userdet = await pool.query("SELECT userId,name,email FROM USERS WHERE email=?", [email])
@@ -82,4 +82,4 @@ exports.getUserdetails = async (req, res) => {
     }
 }
 
-module.exports = { register, login }
+module.exports = { register, login, getUserdetails }
