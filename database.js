@@ -1,4 +1,5 @@
 const mysql = require('mysql')
+require('dotenv').config();
 const { promisify } = require('util')
 const { database } = require('./config')
 
@@ -15,7 +16,7 @@ pool.getConnection((err, connection) => {
         if (err.code === "ECONNREFUSED") {
             console.error("Database connection was refused");
         }
-
+        console.log(err)
     }
 
     if (connection) connection.release();
