@@ -17,6 +17,7 @@ pool.getConnection((err, connection) => {
             console.error("Database connection was refused");
         }
         console.log(err)
+        return;
     }
 
     if (connection) connection.release();
