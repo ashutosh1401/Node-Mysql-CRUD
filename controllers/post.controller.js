@@ -1,4 +1,6 @@
 const pool = require('../database')
+const redis = require('redis')
+const client = redis.createClient()
 
 exports.createPost = async (req, res) => {
     try {
@@ -23,12 +25,26 @@ exports.createPost = async (req, res) => {
 exports.getPostById = async (req, res) => {
     try {
         const postId = req.params.id
-        const post = await pool.query("SELECT * FROM POSTS WHERE postId=?", [postId])
-        if (post) {
-            res.status(200).send({
-                post
-            })
-        }
+
+        client.get(postId, async (err, result) => {
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+
+            if (result) {
+                res.status(200).send({ post: JSON.parse(result) })
+            }
+            else {
+                const post = await pool.query("SELECT * FROM POSTS WHERE postId=?", [postId])
+                if (post) {
+                    await client.setex(postId, 3600, JSON.stringify(post))
+                    res.status(200).send({
+                        post
+                    })
+                }
+            }
+        })
     } catch (e) {
         res.status(500).send(e)
         console.log(e)
